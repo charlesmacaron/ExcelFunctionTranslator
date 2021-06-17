@@ -4,7 +4,7 @@
 
 Search and view Microsoft Excel functions and descriptions in different languages.
 
-![Screenshot](https://github.com/charlesmacaron/ExcelFunctionTranslator/raw/master/screenshots/screenshot.png)
+![Screenshot](https://github.com/charlesmacaron/ExcelFunctionTranslator/blob/main/screenshots/screenshot.png)
 
 ## License
 
