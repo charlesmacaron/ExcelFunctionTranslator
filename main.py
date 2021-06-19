@@ -35,8 +35,11 @@ bar.next()
 # Collect data from the internet
 responseObject = requests.get('http://dolf.trieschnigg.nl/excel/index.php')
 
+# Set encoding format
+responseObject.encoding = 'UTF-8'
+
 # Save index.html in html folder
-file = open(os.path.join('html', 'index.html'), 'w', encoding='UTF-8')
+file = open(os.path.join('html', 'index.html'), 'w')
 file.writelines(responseObject.text)
 file.close()
 
@@ -44,7 +47,7 @@ file.close()
 bar.next()
 
 # Parse index.html
-soup = BeautifulSoup(open(os.path.join('html', 'index.html'), encoding='UTF-8'), 'html.parser')
+soup = BeautifulSoup(open(os.path.join('html', 'index.html')), 'html.parser')
 
 # Progress bar for parsing index.html
 bar.next()
@@ -68,20 +71,22 @@ for content in soup.find_all('th'):
         dictionary[content.get('langid')]['link'] = 'http://dolf.trieschnigg.nl/excel/' + content.find('a').get('href')
         dictionary[content.get('langid')]['json'] = content.get('langid') + '.json'
         responseObject = requests.get(dictionary[content.get('langid')]['link'])
+        # Set encoding format
+        responseObject.encoding = 'UTF-8'
         jsonfiles.append(content.get('langid'))
         # Import Excel functions from html files in html folder
-        file = open(os.path.join('html', content.get('langid') + '.html'), 'w', encoding='UTF-8')
+        file = open(os.path.join('html', content.get('langid') + '.html'), 'w')
         file.writelines(responseObject.text)
         file.close()
         # Create language specific json files
-        file = open(os.path.join('json', content.get('langid') + '.json'), 'w', encoding='UTF-8')
+        file = open(os.path.join('json', content.get('langid') + '.json'), 'w')
         file.close()
     else:
         dictionary[content.get('langid')]['link'] = 'None'
         dictionary[content.get('langid')]['json'] = 'None'
     # Progress bar for all html files and json files
     bar.next(3)
-file = open(os.path.join('json', 'structure.json'), 'w', encoding='UTF-8')
+file = open(os.path.join('json', 'structure.json'), 'w')
 file.write(json.dumps(dictionary))
 file.close()
 
@@ -95,7 +100,7 @@ for row in soup.find_all('tr'):
         dictionary[row.find('td').get_text()
                    ][languages[count]] = content.get_text()
         count = count + 1
-file = open(os.path.join('json', 'index.json'), 'w', encoding='UTF-8')
+file = open(os.path.join('json', 'index.json'), 'w')
 file.write(json.dumps(dictionary))
 file.close()
 
@@ -105,15 +110,16 @@ bar.next()
 # Save Excel functions and descriptions in language specific json files
 for jsonfile in jsonfiles:
     soup = BeautifulSoup(
-        open(os.path.join('html', jsonfile + '.html'), encoding='UTF-8'), 'html.parser')
+        open(os.path.join('html', jsonfile + '.html')), 'html.parser')
     dictionary.clear()
     for content in soup.find_all('tr'):
         dictionary[content.find_all('td')[2].get_text()] = {}
     for content in soup.find_all('tr'):
         dictionary[content.find_all('td')[2].get_text()][jsonfile] = content.find_all('td')[0].get_text()
-        dictionary[content.find_all('td')[2].get_text()][jsonfile + '_description'] = content.find_all('td')[1].get_text()
+        dictionary[content.find_all('td')[2].get_text()][jsonfile +
+                                                         '_description'] = content.find_all('td')[1].get_text()
         dictionary[content.find_all('td')[2].get_text()]['en_description'] = content.find_all('td')[3].get_text()
-    file = open(os.path.join('json', jsonfile + '.json'), 'w', encoding='UTF-8')
+    file = open(os.path.join('json', jsonfile + '.json'), 'w')
     file.write(json.dumps(dictionary))
     file.close()
     # Progress bar for each language specific json file
@@ -129,8 +135,8 @@ bar.clearln()
 bar.finish()
 
 # Show language list
-file = open(os.path.join('json', 'structure.json'), 'r', encoding='UTF-8')
-dictionary = json.loads(file.read(), encoding='UTF-8')
+file = open(os.path.join('json', 'structure.json'), 'r')
+dictionary = json.loads(file.read())
 file.close()
 print(Fore.WHITE + Back.BLUE + str('Language').ljust(20) + str('Code').ljust(10), end='')
 print(str('Language').ljust(20) + str('Code').ljust(10), end='')
@@ -156,17 +162,21 @@ print(Fore.WHITE + Back.BLUE + str('Note: There is no description for languages 
 print(Style.RESET_ALL)
 
 # Ask for languages for search and result, and check the validity
-print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN + 'search' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
+print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN +
+      'search' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
 searchLanguage = str(input()).lower()[0:2]
 while searchLanguage not in dictionary:
     print(Fore.RED + 'It seems that there is no match for the code...please try again:)')
-    print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN + 'search' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
+    print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN +
+          'search' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
     searchLanguage = str(input()).lower()[0:2]
-print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN + 'result' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
+print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN +
+      'result' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
 resultLanguage = str(input()).lower()[0:2]
 while searchLanguage not in dictionary:
     print(Fore.RED + 'It seems that there is no match for the code...please try again:)')
-    print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN + 'result' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
+    print(Fore.CYAN + '>> Code of language for ' + Fore.WHITE + Back.CYAN +
+          'result' + Style.RESET_ALL + Fore.CYAN + ': ' + Fore.YELLOW, end='')
     resultLanguage = str(input()).lower()[0:2]
 searchJsonFile = dictionary[searchLanguage]['json']
 resultJsonFile = dictionary[resultLanguage]['json']
@@ -181,18 +191,18 @@ print(Style.RESET_ALL)
 # Import language specific data from json files
 searchDictionary = {}
 resultDictionary = {}
-file = open(os.path.join('json', 'index.json'), 'r', encoding='UTF-8')
-searchDictionary = json.loads(file.read(), encoding='UTF-8')
+file = open(os.path.join('json', 'index.json'), 'r')
+searchDictionary = json.loads(file.read())
 file.close()
 if resultLanguage == 'en':
-    file = open(os.path.join('json', 'fr.json'), 'r', encoding='UTF-8')
+    file = open(os.path.join('json', 'fr.json'), 'r')
     resultDictionary = json.loads(file.read())
     file.close()
 elif resultJsonFile == 'None':
     resultDictionary = None
 else:
-    file = open(os.path.join('json', resultJsonFile), 'r', encoding='UTF-8')
-    resultDictionary = json.loads(file.read(), encoding='UTF-8')
+    file = open(os.path.join('json', resultJsonFile), 'r')
+    resultDictionary = json.loads(file.read())
     file.close()
 
 # Loop for searching and showing results
@@ -219,9 +229,12 @@ while True:
         print(Fore.CYAN + str(functions))
     else:
         print(Fore.MAGENTA + searchLanguage.upper() + ': ' + Fore.GREEN + str(functions[0]))
-        print(Fore.MAGENTA + resultLanguage.upper() + ': ' + Fore.GREEN + str(searchDictionary[indexFunction][resultLanguage]))
+        print(Fore.MAGENTA + resultLanguage.upper() + ': ' + Fore.GREEN +
+              str(searchDictionary[indexFunction][resultLanguage]))
         if resultDictionary != None:
             if resultLanguage == 'en' and indexFunction in resultDictionary:
-                print(Fore.MAGENTA + 'DESCRIPTION: ' + Fore.GREEN + str(resultDictionary[indexFunction]['en_description']))
+                print(Fore.MAGENTA + 'DESCRIPTION: ' + Fore.GREEN +
+                      str(resultDictionary[indexFunction]['en_description']))
             elif indexFunction in resultDictionary:
-                print(Fore.MAGENTA + 'DESCRIPTION: ' + Fore.GREEN + str(resultDictionary[indexFunction][resultLanguage + '_description']))
+                print(Fore.MAGENTA + 'DESCRIPTION: ' + Fore.GREEN +
+                      str(resultDictionary[indexFunction][resultLanguage + '_description']))

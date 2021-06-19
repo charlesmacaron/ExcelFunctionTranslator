@@ -12,7 +12,7 @@ Copyright (c) 2018 Xinyu Zhao. MIT License.
 
 ## Dependencies
 
-Tested with `Python3.7.0` on `macOS` and `Win64`.
+Tested with `Python3.9.5` on `macOS`.
 
 ## External Resource
 
