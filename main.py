@@ -14,120 +14,130 @@ print(Fore.BLACK + Back.CYAN + 'E' + Style.RESET_ALL + Fore.WHITE + 'xcel ', end
 print(Fore.BLACK + Back.CYAN + 'F' + Style.RESET_ALL + Fore.WHITE + 'unction ', end='')
 print(Fore.BLACK + Back.CYAN + 'T' + Style.RESET_ALL + Fore.WHITE + 'ranslator' + Fore.CYAN)
 
+# Ask if download and replace current data
+update_data = input('Download and update data? [Y/n]\n>>> ')
+
+if update_data in ['y', 'yes', 'Y', 'Yes', 'YES']:
+    # Ask if keep the HTML files
+    keep_data = input('Keep data for future use? [Y/n]\n>>> ')
+
 # Create progress bar
 bar = Bar('Initializing', fill='█', suffix='%(percent)d%%')
 
-# Clean html folder if it exists
-if os.path.exists('html'):
-    shutil.rmtree('html')
+if update_data in ['y', 'yes', 'Y', 'Yes', 'YES']:
+    # Clean html folder if it exists
+    if os.path.exists('html'):
+        shutil.rmtree('html')
 
-# Clean json folder if it exists
-if os.path.exists('json'):
-    shutil.rmtree('json')
+    # Clean json folder if it exists
+    if os.path.exists('json'):
+        shutil.rmtree('json')
 
-# Create html folder, json folder, and database file
-os.mkdir('html')
-os.mkdir('json')
+    # Create html folder, json folder, and database file
+    os.mkdir('html')
+    os.mkdir('json')
 
-# Progress bar for cleaning and creating external files
-bar.next()
+    # Progress bar for cleaning and creating external files
+    bar.next()
 
-# Collect data from the internet
-responseObject = requests.get('http://dolf.trieschnigg.nl/excel/index.php')
+    # Collect data from the internet
+    responseObject = requests.get('http://dolf.trieschnigg.nl/excel/index.php')
 
-# Set encoding format
-responseObject.encoding = 'UTF-8'
+    # Set encoding format
+    responseObject.encoding = 'UTF-8'
 
-# Save index.html in html folder
-file = open(os.path.join('html', 'index.html'), 'w')
-file.writelines(responseObject.text)
-file.close()
+    # Save index.html in html folder
+    file = open(os.path.join('html', 'index.html'), 'w')
+    file.writelines(responseObject.text)
+    file.close()
 
-# Progress bar for collecting index.html
-bar.next()
+    # Progress bar for collecting index.html
+    bar.next()
 
-# Parse index.html
-soup = BeautifulSoup(open(os.path.join('html', 'index.html')), 'html.parser')
+    # Parse index.html
+    soup = BeautifulSoup(open(os.path.join('html', 'index.html')), 'html.parser')
 
-# Progress bar for parsing index.html
-bar.next()
+    # Progress bar for parsing index.html
+    bar.next()
 
-# Count the number of languages
-dictionary = {}
-languages = []
-jsonfiles = []
-for content in soup.find_all('th'):
-    dictionary[content.get('langid')] = {}
-    languages.append(content.get('langid'))
+    # Count the number of languages
+    dictionary = {}
+    languages = []
+    jsonfiles = []
+    for content in soup.find_all('th'):
+        dictionary[content.get('langid')] = {}
+        languages.append(content.get('langid'))
 
-# Progress bar for counting the number of languages
-bar.next()
+    # Progress bar for counting the number of languages
+    bar.next()
 
-# Save all html files in html folder
-for content in soup.find_all('th'):
-    dictionary[content.get('langid')]['name'] = content.get_text()
-    dictionary[content.get('langid')]['langid'] = content.get('langid')
-    if content.find('a') != None:
-        dictionary[content.get('langid')]['link'] = 'http://dolf.trieschnigg.nl/excel/' + content.find('a').get('href')
-        dictionary[content.get('langid')]['json'] = content.get('langid') + '.json'
-        responseObject = requests.get(dictionary[content.get('langid')]['link'])
-        # Set encoding format
-        responseObject.encoding = 'UTF-8'
-        jsonfiles.append(content.get('langid'))
-        # Import Excel functions from html files in html folder
-        file = open(os.path.join('html', content.get('langid') + '.html'), 'w')
-        file.writelines(responseObject.text)
-        file.close()
-        # Create language specific json files
-        file = open(os.path.join('json', content.get('langid') + '.json'), 'w')
-        file.close()
-    else:
-        dictionary[content.get('langid')]['link'] = 'None'
-        dictionary[content.get('langid')]['json'] = 'None'
-    # Progress bar for all html files and json files
-    bar.next(3)
-file = open(os.path.join('json', 'structure.json'), 'w')
-file.write(json.dumps(dictionary))
-file.close()
-
-# Save all Excel functions in index.json
-dictionary.clear()
-for content in soup.find_all('tr'):
-    dictionary[content.find('td').get_text()] = {}
-for row in soup.find_all('tr'):
-    count = 0
-    for content in row.find_all('td'):
-        dictionary[row.find('td').get_text()
-                   ][languages[count]] = content.get_text()
-        count = count + 1
-file = open(os.path.join('json', 'index.json'), 'w')
-file.write(json.dumps(dictionary))
-file.close()
-
-# Progress bar for saving all Excel functions
-bar.next()
-
-# Save Excel functions and descriptions in language specific json files
-for jsonfile in jsonfiles:
-    soup = BeautifulSoup(
-        open(os.path.join('html', jsonfile + '.html')), 'html.parser')
-    dictionary.clear()
-    for content in soup.find_all('tr'):
-        dictionary[content.find_all('td')[2].get_text()] = {}
-    for content in soup.find_all('tr'):
-        dictionary[content.find_all('td')[2].get_text()][jsonfile] = content.find_all('td')[0].get_text()
-        dictionary[content.find_all('td')[2].get_text()][jsonfile +
-                                                         '_description'] = content.find_all('td')[1].get_text()
-        dictionary[content.find_all('td')[2].get_text()]['en_description'] = content.find_all('td')[3].get_text()
-    file = open(os.path.join('json', jsonfile + '.json'), 'w')
+    # Save all html files in html folder
+    for content in soup.find_all('th'):
+        dictionary[content.get('langid')]['name'] = content.get_text()
+        dictionary[content.get('langid')]['langid'] = content.get('langid')
+        if content.find('a') != None:
+            dictionary[content.get('langid')]['link'] = 'http://dolf.trieschnigg.nl/excel/' + \
+                content.find('a').get('href')
+            dictionary[content.get('langid')]['json'] = content.get('langid') + '.json'
+            responseObject = requests.get(dictionary[content.get('langid')]['link'])
+            # Set encoding format
+            responseObject.encoding = 'UTF-8'
+            jsonfiles.append(content.get('langid'))
+            # Import Excel functions from html files in html folder
+            file = open(os.path.join('html', content.get('langid') + '.html'), 'w')
+            file.writelines(responseObject.text)
+            file.close()
+            # Create language specific json files
+            file = open(os.path.join('json', content.get('langid') + '.json'), 'w')
+            file.close()
+        else:
+            dictionary[content.get('langid')]['link'] = 'None'
+            dictionary[content.get('langid')]['json'] = 'None'
+        # Progress bar for all html files and json files
+        bar.next(3)
+    file = open(os.path.join('json', 'structure.json'), 'w')
     file.write(json.dumps(dictionary))
     file.close()
-    # Progress bar for each language specific json file
-    bar.next(3)
 
-# Clean html folder if it exists
-if os.path.exists('html'):
-    shutil.rmtree('html')
+    # Save all Excel functions in index.json
+    dictionary.clear()
+    for content in soup.find_all('tr'):
+        dictionary[content.find('td').get_text()] = {}
+    for row in soup.find_all('tr'):
+        count = 0
+        for content in row.find_all('td'):
+            dictionary[row.find('td').get_text()
+                       ][languages[count]] = content.get_text()
+            count = count + 1
+    file = open(os.path.join('json', 'index.json'), 'w')
+    file.write(json.dumps(dictionary))
+    file.close()
+
+    # Progress bar for saving all Excel functions
+    bar.next()
+
+    # Save Excel functions and descriptions in language specific json files
+    for jsonfile in jsonfiles:
+        soup = BeautifulSoup(
+            open(os.path.join('html', jsonfile + '.html')), 'html.parser')
+        dictionary.clear()
+        for content in soup.find_all('tr'):
+            dictionary[content.find_all('td')[2].get_text()] = {}
+        for content in soup.find_all('tr'):
+            dictionary[content.find_all('td')[2].get_text()][jsonfile] = content.find_all('td')[0].get_text()
+            dictionary[content.find_all('td')[2].get_text()][jsonfile +
+                                                             '_description'] = content.find_all('td')[1].get_text()
+            dictionary[content.find_all('td')[2].get_text()]['en_description'] = content.find_all('td')[3].get_text()
+        file = open(os.path.join('json', jsonfile + '.json'), 'w')
+        file.write(json.dumps(dictionary))
+        file.close()
+        # Progress bar for each language specific json file
+        bar.next(3)
+
+    if keep_data not in ['y', 'yes', 'Y', 'Yes', 'YES']:
+        # Clean html folder if it exists
+        if os.path.exists('html'):
+            shutil.rmtree('html')
 
 # Destroy progress bar
 bar.next(bar.remaining)
