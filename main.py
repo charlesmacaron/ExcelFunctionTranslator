@@ -17,14 +17,14 @@ print(Fore.BLACK + Back.CYAN + 'T' + Style.RESET_ALL + Fore.WHITE + 'ranslator' 
 # Ask if download and replace current data
 update_data = input('Download and update data? [Y/n]\n>>> ')
 
-if update_data in ['y', 'yes', 'Y', 'Yes', 'YES']:
+if update_data in ('y', 'yes', 'Y', 'Yes', 'YES'):
     # Ask if keep the HTML files
     keep_data = input('Keep data for future use? [Y/n]\n>>> ')
 
 # Create progress bar
 bar = Bar('Initializing', fill='█', suffix='%(percent)d%%')
 
-if update_data in ['y', 'yes', 'Y', 'Yes', 'YES']:
+if update_data in ('y', 'yes', 'Y', 'Yes', 'YES'):
     # Clean html folder if it exists
     if os.path.exists('html'):
         shutil.rmtree('html')
@@ -134,7 +134,7 @@ if update_data in ['y', 'yes', 'Y', 'Yes', 'YES']:
         # Progress bar for each language specific json file
         bar.next(3)
 
-    if keep_data not in ['y', 'yes', 'Y', 'Yes', 'YES']:
+    if keep_data not in ('y', 'yes', 'Y', 'Yes', 'YES'):
         # Clean html folder if it exists
         if os.path.exists('html'):
             shutil.rmtree('html')
